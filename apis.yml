@@ -1,0 +1,187 @@
+aid: nostr
+name: Nostr
+description: |
+  Nostr (Notes and Other Stuff Transmitted by Relays) is an open,
+  permissionless protocol for censorship-resistant social and messaging
+  applications. Identity is a public/private keypair; content is a signed
+  JSON event; transport is a WebSocket connection to one or more relays.
+  There is no central server, no canonical API, and no organization that
+  owns the protocol — only a set of community-defined NIPs (Nostr
+  Implementation Possibilities) describing event kinds, relay behavior,
+  and client conventions. A large ecosystem of clients (Damus, Amethyst,
+  Coracle, Yakihonne, Nostur, Iris), relay implementations (strfry,
+  nostream, khatru), and language libraries (nostr-tools for JS,
+  python-nostr, go-nostr, rust-nostr, NDK) has formed around the protocol.
+  Nostr is profiled here through its specifications and reference
+  implementations rather than a vendor API.
+type: Index
+position: Protocol
+access: Public
+image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+tags:
+  - Nostr
+  - Decentralized Social
+  - Open Protocol
+  - Relays
+  - WebSocket
+  - Signed Events
+  - NIP
+  - Censorship Resistant
+  - Self-Sovereign Identity
+url: https://raw.githubusercontent.com/api-evangelist/nostr/refs/heads/main/apis.yml
+created: '2026-05-23'
+modified: '2026-05-23'
+specificationVersion: '0.20'
+apis:
+  - aid: nostr:nostr-protocol
+    name: Nostr Protocol (NIP-01)
+    description: |
+      NIP-01 defines the core Nostr protocol: event format (id, pubkey,
+      created_at, kind, tags, content, sig), client-to-relay messages
+      (EVENT, REQ, CLOSE), and relay-to-client messages (EVENT, OK, EOSE,
+      CLOSED, NOTICE) exchanged over a single WebSocket connection. This
+      is the minimum surface every client and relay must implement.
+    humanURL: https://github.com/nostr-protocol/nips/blob/master/01.md
+    baseURL: wss://relay.example
+    tags:
+      - NIP-01
+      - Event
+      - WebSocket
+      - Subscription
+      - Signature
+    properties:
+      - type: Specification
+        url: https://github.com/nostr-protocol/nips/blob/master/01.md
+      - type: SpecificationIndex
+        url: https://github.com/nostr-protocol/nips
+      - type: Repository
+        url: https://github.com/nostr-protocol
+  - aid: nostr:nostr-nips
+    name: Nostr Implementation Possibilities (NIPs)
+    description: |
+      NIPs are the standards documents that extend Nostr beyond the core
+      protocol. They define event kinds (text notes, reactions, zaps,
+      long-form articles, DMs, calendar events, marketplaces), client
+      behaviors (NIP-05 verified handles, NIP-07 browser signers, NIP-46
+      remote signers), and relay capabilities (NIP-11 relay information,
+      NIP-42 authentication). Conformance is informal — clients and relays
+      pick the NIPs they support.
+    humanURL: https://github.com/nostr-protocol/nips
+    baseURL: https://github.com/nostr-protocol/nips
+    tags:
+      - NIPs
+      - Event Kinds
+      - Extensions
+      - Standards
+    properties:
+      - type: SpecificationIndex
+        url: https://github.com/nostr-protocol/nips
+      - type: Repository
+        url: https://github.com/nostr-protocol
+  - aid: nostr:relay-interface
+    name: Nostr Relay WebSocket Interface
+    description: |
+      A Nostr relay is a WebSocket server that accepts signed events,
+      stores them subject to its own policy, and responds to subscription
+      filters from clients. The relay surface is intentionally minimal:
+      no accounts, no shared state, no canonical ordering. Operators
+      choose retention, content policy, paid-access, and authentication
+      (NIP-42) independently. Reference implementations include strfry
+      (C++), nostream (TypeScript), and khatru (Go).
+    humanURL: https://github.com/nostr-protocol/nips/blob/master/11.md
+    baseURL: wss://relay.example
+    tags:
+      - Relay
+      - WebSocket
+      - strfry
+      - khatru
+      - nostream
+    properties:
+      - type: Specification
+        url: https://github.com/nostr-protocol/nips/blob/master/01.md
+      - type: RelayInfo
+        url: https://github.com/nostr-protocol/nips/blob/master/11.md
+      - type: ReferenceImplementation
+        url: https://github.com/hoytech/strfry
+      - type: ReferenceImplementation
+        url: https://github.com/Cameri/nostream
+      - type: ReferenceImplementation
+        url: https://github.com/fiatjaf/khatru
+  - aid: nostr:nostr-tools
+    name: nostr-tools JavaScript Library
+    description: |
+      nostr-tools is the de-facto JavaScript/TypeScript library for Nostr
+      clients and bots. It implements event creation, signing, relay
+      connections, subscription filters, and many common NIPs, and is
+      used by a large portion of the Nostr web ecosystem.
+    humanURL: https://github.com/nbd-wtf/nostr-tools
+    baseURL: https://www.npmjs.com/package/nostr-tools
+    tags:
+      - SDK
+      - JavaScript
+      - TypeScript
+      - Client Library
+    properties:
+      - type: Repository
+        url: https://github.com/nbd-wtf/nostr-tools
+      - type: Package
+        url: https://www.npmjs.com/package/nostr-tools
+features:
+  - name: Cryptographic Identity
+    description: Each user is a secp256k1 keypair; no account creation, no central registry.
+  - name: Signed Events
+    description: Every event carries a Schnorr signature over a deterministic JSON serialization, allowing any relay to verify authenticity.
+  - name: Multi-Relay Publishing
+    description: Clients publish to and read from many relays in parallel, with no single point of failure.
+  - name: Extensible Event Kinds
+    description: New event kinds and NIPs can be proposed and adopted without coordination from a central authority.
+  - name: Censorship Resistance
+    description: Relays can refuse content, but they cannot prevent it from existing elsewhere on the network.
+  - name: Lightweight Relay Surface
+    description: A minimal WebSocket interface keeps the cost of running a relay low enough for hobbyists.
+useCases:
+  - name: Social Clients
+    description: Build mobile, web, or desktop social clients (Damus, Amethyst, Coracle, Yakihonne).
+  - name: Long-Form Publishing
+    description: Use NIP-23 long-form events for blog-style content and newsletter distribution.
+  - name: Private Messaging
+    description: Implement encrypted direct messages and group chat using NIP-04, NIP-17, and NIP-44 kinds.
+  - name: Lightning Zaps
+    description: Layer Lightning Network micropayments on top of Nostr events using NIP-57 zaps.
+  - name: Relay Operation
+    description: Run a public, private, or paid relay to serve specific communities or content policies.
+  - name: Bots and Automation
+    description: Build read-only bots, scrapers, and event mirrors with minimal infrastructure.
+integrations:
+  - name: Damus
+  - name: Amethyst
+  - name: Coracle
+  - name: Yakihonne
+  - name: Nostur
+  - name: Iris
+  - name: strfry
+  - name: khatru
+  - name: nostream
+  - name: Lightning Network
+common:
+  - type: Website
+    url: https://nostr.com/
+  - type: GitHubOrganization
+    url: https://github.com/nostr-protocol
+  - type: Specifications
+    url: https://github.com/nostr-protocol/nips
+  - type: ProtocolReference
+    url: https://github.com/nostr-protocol/nostr
+  - type: AppDirectory
+    url: https://nostrapps.com/
+  - type: SoftwareDirectory
+    url: https://nostr.net/
+  - type: GettingStarted
+    url: https://start.njump.me/
+  - type: NetworkExplorer
+    url: https://nostr.band/
+  - type: OriginalEssay
+    url: https://fiatjaf.com/nostr.html
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com

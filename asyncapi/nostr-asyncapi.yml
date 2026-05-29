@@ -1,0 +1,410 @@
+asyncapi: '2.6.0'
+info:
+  title: Nostr Relay Protocol
+  version: '1.0.0'
+  description: |
+    AsyncAPI definition of the canonical Nostr relay-client protocol as
+    specified by NIP-01 (basic protocol) and NIP-42 (authentication).
+
+    Nostr relays expose a single WebSocket endpoint that exchanges JSON
+    arrays as messages. Clients publish signed events and open filtered
+    subscriptions; relays acknowledge publishes, stream matching events,
+    signal end-of-stored-events, terminate subscriptions, and optionally
+    challenge for authentication.
+
+    Each message on the wire is a JSON array whose first element is a
+    string label (EVENT, REQ, CLOSE, OK, EOSE, CLOSED, NOTICE, AUTH)
+    identifying the message type. This spec models each label as a
+    distinct AsyncAPI message and groups them under publish/subscribe
+    operations on the single relay channel.
+
+    Sources:
+      - https://github.com/nostr-protocol/nips/blob/master/01.md
+      - https://github.com/nostr-protocol/nips/blob/master/42.md
+      - https://github.com/nostr-protocol/nips/blob/master/11.md
+  contact:
+    name: API Evangelist
+    url: https://apievangelist.com
+    email: kin@apievangelist.com
+  license:
+    name: Public Domain
+    url: https://github.com/nostr-protocol/nips/blob/master/LICENSE
+  tags:
+    - name: Nostr
+    - name: NIP-01
+    - name: NIP-42
+    - name: Relay
+    - name: WebSocket
+servers:
+  production:
+    url: relay.example
+    protocol: wss
+    description: |
+      Any Nostr relay implementing NIP-01. There is no canonical relay;
+      clients typically connect to several relays in parallel. Public
+      examples include wss://relay.damus.io, wss://nos.lol, and
+      wss://relay.nostr.band. Relay metadata (supported NIPs, limits,
+      payment requirements) is published via NIP-11 over HTTPS with the
+      `Accept: application/nostr+json` header.
+defaultContentType: application/json
+channels:
+  /:
+    description: |
+      The single WebSocket channel exposed by a Nostr relay. All
+      client-to-relay and relay-to-client messages flow over this
+      connection as JSON arrays. From the client's perspective,
+      `publish` operations send messages to the relay and `subscribe`
+      operations receive messages from the relay.
+    bindings:
+      ws:
+        bindingVersion: '0.1.0'
+    publish:
+      operationId: sendToRelay
+      summary: Messages a client sends to a relay.
+      description: |
+        Client-to-relay messages defined by NIP-01 and NIP-42. A client
+        may publish an EVENT, open or update a subscription with REQ,
+        terminate a subscription with CLOSE, or respond to an
+        authentication challenge with AUTH.
+      message:
+        oneOf:
+          - $ref: '#/components/messages/ClientEvent'
+          - $ref: '#/components/messages/ClientReq'
+          - $ref: '#/components/messages/ClientClose'
+          - $ref: '#/components/messages/ClientAuth'
+    subscribe:
+      operationId: receiveFromRelay
+      summary: Messages a relay sends to a client.
+      description: |
+        Relay-to-client messages defined by NIP-01 and NIP-42. The relay
+        streams matching EVENTs for each open subscription, acknowledges
+        published events with OK, signals end of stored events with
+        EOSE, terminates subscriptions with CLOSED, surfaces human
+        readable messages via NOTICE, and may challenge for
+        authentication with AUTH.
+      message:
+        oneOf:
+          - $ref: '#/components/messages/RelayEvent'
+          - $ref: '#/components/messages/RelayOk'
+          - $ref: '#/components/messages/RelayEose'
+          - $ref: '#/components/messages/RelayClosed'
+          - $ref: '#/components/messages/RelayNotice'
+          - $ref: '#/components/messages/RelayAuthChallenge'
+components:
+  messages:
+    ClientEvent:
+      name: ClientEvent
+      title: EVENT (client to relay)
+      summary: Publish a signed event to the relay.
+      description: |
+        `["EVENT", <event>]` — submits a signed Nostr event for the
+        relay to store and forward to matching subscriptions. The relay
+        replies with an `OK` message keyed by the event id.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ClientEventMessage'
+    ClientReq:
+      name: ClientReq
+      title: REQ (client to relay)
+      summary: Open or replace a subscription with one or more filters.
+      description: |
+        `["REQ", <subscription_id>, <filter1>, <filter2>, ...]` — asks
+        the relay to send all stored events matching any of the filters
+        and to stream future matching events until the subscription is
+        closed. `subscription_id` is an arbitrary non-empty string of
+        up to 64 characters, scoped to the connection.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ClientReqMessage'
+    ClientClose:
+      name: ClientClose
+      title: CLOSE (client to relay)
+      summary: Terminate a previously opened subscription.
+      description: |
+        `["CLOSE", <subscription_id>]` — instructs the relay to stop
+        sending events for the given subscription. The relay does not
+        need to acknowledge this message.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ClientCloseMessage'
+    ClientAuth:
+      name: ClientAuth
+      title: AUTH (client to relay, NIP-42)
+      summary: Respond to a relay AUTH challenge with a signed kind 22242 event.
+      description: |
+        `["AUTH", <signed-event>]` — the client signs a kind 22242
+        event whose tags include `["relay", <relay-url>]` and
+        `["challenge", <challenge-string>]` from the most recent AUTH
+        challenge, and sends it back. The relay replies with an `OK`
+        message keyed by the event id.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/ClientAuthMessage'
+    RelayEvent:
+      name: RelayEvent
+      title: EVENT (relay to client)
+      summary: Stream a stored or live event matching an open subscription.
+      description: |
+        `["EVENT", <subscription_id>, <event>]` — the relay delivers an
+        event that matches one of the filters in the named
+        subscription. Stored events are sent first, followed by EOSE,
+        then live events as they arrive.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/RelayEventMessage'
+    RelayOk:
+      name: RelayOk
+      title: OK (relay to client)
+      summary: Acknowledge a published EVENT or AUTH event.
+      description: |
+        `["OK", <event_id>, <true|false>, <message>]` — the relay
+        accepted (`true`) or rejected (`false`) an event submitted via
+        EVENT or AUTH. The message string is always present and SHOULD
+        be prefixed (`duplicate:`, `pow:`, `blocked:`, `rate-limited:`,
+        `invalid:`, `restricted:`, `error:`) when rejecting.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/RelayOkMessage'
+    RelayEose:
+      name: RelayEose
+      title: EOSE (relay to client)
+      summary: Mark the end of stored events for a subscription.
+      description: |
+        `["EOSE", <subscription_id>]` — signals that all stored events
+        matching the subscription have been delivered. Any further
+        EVENTs on this subscription are live updates.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/RelayEoseMessage'
+    RelayClosed:
+      name: RelayClosed
+      title: CLOSED (relay to client)
+      summary: Indicate the relay has terminated a subscription.
+      description: |
+        `["CLOSED", <subscription_id>, <message>]` — the relay refused
+        or ended a subscription. The message string uses the same
+        prefix conventions as `OK` (`auth-required:`, `restricted:`,
+        `rate-limited:`, `error:` and so on).
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/RelayClosedMessage'
+    RelayNotice:
+      name: RelayNotice
+      title: NOTICE (relay to client)
+      summary: Surface a human readable message from the relay.
+      description: |
+        `["NOTICE", <message>]` — used by the relay to communicate
+        errors or informational messages that are not tied to a
+        specific event or subscription.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/RelayNoticeMessage'
+    RelayAuthChallenge:
+      name: RelayAuthChallenge
+      title: AUTH (relay to client, NIP-42)
+      summary: Challenge the client to authenticate.
+      description: |
+        `["AUTH", <challenge-string>]` — initiates NIP-42
+        authentication. The challenge is valid for the lifetime of the
+        connection or until replaced. The client must reply with a
+        client AUTH message containing a signed kind 22242 event.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/RelayAuthChallengeMessage'
+  schemas:
+    Event:
+      type: object
+      description: |
+        A canonical Nostr event as defined by NIP-01. The `id` is the
+        lowercase hex sha256 of the serialized event array
+        `[0, pubkey, created_at, kind, tags, content]`. The `sig` is a
+        64-byte Schnorr signature over `id`.
+      required:
+        - id
+        - pubkey
+        - created_at
+        - kind
+        - tags
+        - content
+        - sig
+      properties:
+        id:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+          description: 32-byte lowercase hex-encoded sha256 of the serialized event.
+        pubkey:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+          description: 32-byte lowercase hex-encoded secp256k1 public key of the author.
+        created_at:
+          type: integer
+          format: int64
+          description: Unix timestamp in seconds.
+        kind:
+          type: integer
+          minimum: 0
+          maximum: 65535
+          description: Event kind. Kind semantics are defined by individual NIPs.
+        tags:
+          type: array
+          description: Array of tag arrays. Each tag is an array of strings; the first element is the tag name.
+          items:
+            type: array
+            items:
+              type: string
+        content:
+          type: string
+          description: Arbitrary string payload whose meaning depends on the event kind.
+        sig:
+          type: string
+          pattern: '^[0-9a-f]{128}$'
+          description: 64-byte lowercase hex-encoded Schnorr signature of `id`.
+    Filter:
+      type: object
+      description: |
+        A NIP-01 subscription filter. A REQ message carries one or more
+        filters and the relay returns events matching any of them.
+        Tag filters are expressed as keys of the form `#<single-letter>`
+        whose values are arrays of strings.
+      additionalProperties: true
+      properties:
+        ids:
+          type: array
+          description: List of event ids (or id prefixes) to match.
+          items:
+            type: string
+        authors:
+          type: array
+          description: List of pubkeys (or pubkey prefixes) to match.
+          items:
+            type: string
+        kinds:
+          type: array
+          description: List of event kinds to match.
+          items:
+            type: integer
+            minimum: 0
+            maximum: 65535
+        since:
+          type: integer
+          format: int64
+          description: Match events with `created_at >= since`.
+        until:
+          type: integer
+          format: int64
+          description: Match events with `created_at <= until`.
+        limit:
+          type: integer
+          minimum: 0
+          description: Maximum number of stored events to return.
+    ClientEventMessage:
+      type: array
+      description: '["EVENT", <event>]'
+      minItems: 2
+      maxItems: 2
+      items:
+        - type: string
+          const: EVENT
+        - $ref: '#/components/schemas/Event'
+    ClientReqMessage:
+      type: array
+      description: '["REQ", <subscription_id>, <filter>, ...]'
+      minItems: 3
+      items:
+        - type: string
+          const: REQ
+        - type: string
+          minLength: 1
+          maxLength: 64
+          description: Connection-scoped subscription identifier.
+      additionalItems:
+        $ref: '#/components/schemas/Filter'
+    ClientCloseMessage:
+      type: array
+      description: '["CLOSE", <subscription_id>]'
+      minItems: 2
+      maxItems: 2
+      items:
+        - type: string
+          const: CLOSE
+        - type: string
+          minLength: 1
+          maxLength: 64
+          description: Subscription identifier to terminate.
+    ClientAuthMessage:
+      type: array
+      description: '["AUTH", <signed kind 22242 event>] (NIP-42)'
+      minItems: 2
+      maxItems: 2
+      items:
+        - type: string
+          const: AUTH
+        - $ref: '#/components/schemas/Event'
+    RelayEventMessage:
+      type: array
+      description: '["EVENT", <subscription_id>, <event>]'
+      minItems: 3
+      maxItems: 3
+      items:
+        - type: string
+          const: EVENT
+        - type: string
+          description: Subscription identifier the event is associated with.
+        - $ref: '#/components/schemas/Event'
+    RelayOkMessage:
+      type: array
+      description: '["OK", <event_id>, <accepted>, <message>]'
+      minItems: 4
+      maxItems: 4
+      items:
+        - type: string
+          const: OK
+        - type: string
+          pattern: '^[0-9a-f]{64}$'
+          description: Hex id of the EVENT or AUTH event being acknowledged.
+        - type: boolean
+          description: True if the event was accepted by the relay.
+        - type: string
+          description: Human readable message; MAY be empty when accepted.
+    RelayEoseMessage:
+      type: array
+      description: '["EOSE", <subscription_id>]'
+      minItems: 2
+      maxItems: 2
+      items:
+        - type: string
+          const: EOSE
+        - type: string
+          description: Subscription identifier whose stored events have all been sent.
+    RelayClosedMessage:
+      type: array
+      description: '["CLOSED", <subscription_id>, <message>]'
+      minItems: 3
+      maxItems: 3
+      items:
+        - type: string
+          const: CLOSED
+        - type: string
+          description: Subscription identifier the relay is closing.
+        - type: string
+          description: Human readable reason; uses NIP-01 prefix conventions.
+    RelayNoticeMessage:
+      type: array
+      description: '["NOTICE", <message>]'
+      minItems: 2
+      maxItems: 2
+      items:
+        - type: string
+          const: NOTICE
+        - type: string
+          description: Human readable message from the relay.
+    RelayAuthChallengeMessage:
+      type: array
+      description: '["AUTH", <challenge-string>] (NIP-42)'
+      minItems: 2
+      maxItems: 2
+      items:
+        - type: string
+          const: AUTH
+        - type: string
+          description: Opaque challenge string the client must sign into a kind 22242 event.

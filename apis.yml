@@ -30,7 +30,7 @@ tags:
   - Self-Sovereign Identity
 url: https://raw.githubusercontent.com/api-evangelist/nostr/refs/heads/main/apis.yml
 created: '2026-05-23'
-modified: '2026-05-23'
+modified: '2026-05-29'
 specificationVersion: '0.20'
 apis:
   - aid: nostr:nostr-protocol
@@ -54,6 +54,8 @@ apis:
         url: https://github.com/nostr-protocol/nips/blob/master/01.md
       - type: SpecificationIndex
         url: https://github.com/nostr-protocol/nips
+      - type: AsyncAPI
+        url: https://raw.githubusercontent.com/api-evangelist/nostr/refs/heads/main/asyncapi/nostr-asyncapi.yml
       - type: Repository
         url: https://github.com/nostr-protocol
   - aid: nostr:nostr-nips
@@ -101,6 +103,8 @@ apis:
         url: https://github.com/nostr-protocol/nips/blob/master/01.md
       - type: RelayInfo
         url: https://github.com/nostr-protocol/nips/blob/master/11.md
+      - type: AsyncAPI
+        url: https://raw.githubusercontent.com/api-evangelist/nostr/refs/heads/main/asyncapi/nostr-asyncapi.yml
       - type: ReferenceImplementation
         url: https://github.com/hoytech/strfry
       - type: ReferenceImplementation

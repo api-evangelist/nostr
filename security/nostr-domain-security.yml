@@ -1,0 +1,27 @@
+generated: '2026-07-11'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: nostr.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Aug 26 10:01:22 2026 GMT
+  hsts: false
+- host: relay.example
+  https: false
+- host: www.npmjs.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Aug 14 03:32:50 2026 GMT
+  hsts: null
+domains:
+- domain: nostr.com
+  dnssec: false
+  caa: []
+  spf: false
+  dmarc: false
+- domain: relay.example
+  dnssec: false
+  caa: []
+  spf: false
+  dmarc: false

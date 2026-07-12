@@ -168,6 +168,8 @@ integrations:
   - name: nostream
   - name: Lightning Network
 common:
+  - type: DomainSecurity
+    url: security/nostr-domain-security.yml
   - type: Website
     url: https://nostr.com/
   - type: GitHubOrganization

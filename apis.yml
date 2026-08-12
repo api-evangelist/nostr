@@ -180,6 +180,13 @@ integrations:
   - name: nostream
   - name: Lightning Network
 common:
+  - type: IssueTracker
+    url: https://github.com/nbd-wtf/nostr-tools/issues
+  - type: Releases
+    url: https://github.com/nbd-wtf/nostr-tools/releases
+  - type: License
+    name: Unlicense
+    url: https://github.com/nbd-wtf/nostr-tools/blob/master/LICENSE
   - type: DomainSecurity
     url: security/nostr-domain-security.yml
   - type: Website

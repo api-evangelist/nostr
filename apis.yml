@@ -15,6 +15,18 @@ description: |
   Nostr is profiled here through its specifications and reference
   implementations rather than a vendor API.
 type: Index
+deliveryModel:
+  model: self-hosted
+  license: Unlicense
+  open_source: true
+  commercial: false
+  callable_host: false
+  label: Self-hosted open source · you run it yourself
+  confidence: high
+  source:
+  - license
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: free
   onboarding: unknown

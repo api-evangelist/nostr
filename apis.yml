@@ -52,6 +52,7 @@ tags:
   - NIP
   - Censorship Resistant
   - Self-Sovereign Identity
+  - Real-Time
 tags_raw:
   - Nostr
   - Decentralized Social
@@ -62,6 +63,7 @@ tags_raw:
   - NIP
   - Censorship Resistant
   - Self-Sovereign Identity
+  - Real-Time
 url: https://raw.githubusercontent.com/api-evangelist/nostr/refs/heads/main/apis.yml
 created: '2026-05-23'
 modified: '2026-05-29'

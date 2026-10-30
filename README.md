@@ -1,4 +1,4 @@
-# nostr
+# Nostr
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,4 +64,124 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Nostr — open social protocol with relays + signed events
+Nostr (Notes and Other Stuff Transmitted by Relays) is an open, permissionless protocol for censorship-resistant social and messaging applications. Identity is a public/private keypair; content is a signed JSON event; transport is a WebSocket connection to one or more relays. There is no central server, no canonical API, and no organization that owns the protocol — only a set of community-defined NIPs (Nostr Implementation Possibilities) describing event kinds, relay behavior, and client conventions. A large ecosystem of clients (Damus, Amethyst, Coracle, Yakihonne, Nostur, Iris), relay implementations (strfry, nostream, khatru), and language libraries (nostr-tools for JS, python-nostr, go-nostr, rust-nostr, NDK) has formed around the protocol. Nostr is profiled here through its specifications and reference implementations rather than a vendor API.
+
+**Areas:** Nostr · Decentralized Social · Open Protocol · Relay · WebSocket · Signed Events · NIP · Censorship Resistant · Self-Sovereign Identity · Real-Time
+
+## Nostr on APIs.io
+
+Everything profiled for Nostr is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/nostr/](https://apis.io/providers/nostr/)** — or go straight to one of the APIs or properties below.
+
+### APIs (4)
+
+- [Nostr Protocol (NIP-01)](https://apis.io/apis/nostr/nostr-protocol/) — NIP-01 defines the core Nostr protocol: event format (id, pubkey, created_at, kind, tags, content, sig), client-to-relay messages (EVENT, REQ, CLOSE), and…
+- [Nostr Implementation Possibilities (NIPs)](https://apis.io/apis/nostr/nostr-nips/) — NIPs are the standards documents that extend Nostr beyond the core protocol. They define event kinds (text notes, reactions, zaps, long-form articles, DMs,…
+- [Nostr Relay WebSocket Interface](https://apis.io/apis/nostr/relay-interface/) — A Nostr relay is a WebSocket server that accepts signed events, stores them subject to its own policy, and responds to subscription filters from clients.…
+- [nostr-tools JavaScript Library](https://apis.io/apis/nostr/nostr-tools/) — nostr-tools is the de-facto JavaScript/TypeScript library for Nostr clients and bots. It implements event creation, signing, relay connections, subscription…
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Nostr Relay Protocol](https://apis.io/asyncapis/nostr/nostr-asyncapi/)
+
+#### Event channels (1)
+
+Individual events and webhooks the provider emits.
+
+- [/](https://apis.io/channels/nostr/untitled/)
+
+#### Governance rules (1)
+
+Spectral rulesets for the provider's contracts.
+
+- [Nostr — asyncapi rules](https://apis.io/rules/nostr/nostr-asyncapi-spectral-rules/)
+
+#### Security (1)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Nostr Domain Security](https://apis.io/security/nostr/nostr-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Nostr Plans Pricing](https://apis.io/plans/nostr/nostr-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Nostr Rate Limits](https://apis.io/rate-limits/nostr/nostr-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Nostr Finops](https://apis.io/finops/nostr/nostr-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://nostr.com/)
+- [Getting started](https://start.njump.me/)
+- [GitHub](https://github.com/nostr-protocol)
+
+## API Evangelist rating
+
+**Kin Score 22.3** — emerging · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 78.6 |
+| Contract quality | 40.6 |
+| Contract governance | 11.4 |
+| Operational transparency | 23.7 |
+| Developer ergonomics | 0.0 |
+| Access clarity | 5.3 |
+
+**Agent readiness 14.7** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | — |
+| Idempotency | — |
+| Error Semantics | — |
+| OpenAPI Examples | — |
+| Rate Limit Signal | derived (partial credit) |
+| Event Surface Described | derived (partial credit) |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 5.9** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/nostr/](https://apis.io/providers/nostr/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Nostr: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/nostr/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
